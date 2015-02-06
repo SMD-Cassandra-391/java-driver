@@ -159,14 +159,13 @@ class RequestHandler implements Connection.ResponseCallback {
         // before connection.write has completed
         connectionHandler = null;
 
-        // Set query state to "in progress" at next iteration
+        // Ensure query state is "in progress" (can be already if connection.write failed on a previous node and we're retrying)
         while (true) {
             QueryState previous = queryStateRef.get();
-            assert !previous.inProgress;
             if (previous == QueryState.CANCELLED) {
                 return;
             }
-            if (queryStateRef.compareAndSet(previous, previous.startNext()))
+            if (previous.inProgress || queryStateRef.compareAndSet(previous, previous.startNext()))
                 break;
         }
 
