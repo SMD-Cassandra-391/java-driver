@@ -336,9 +336,9 @@ class Connection {
         } catch (ConnectionException e) {
             throw defunct(e);
         } catch (TimeoutException e) {
-            logger.warn(String.format("Timeout while setting keyspace on connection to %s. This should not happen but is not critical (it will retried)", address));
+            throw defunct(new ConnectionException(address, "Timeout while setting keyspace on connection"));
         } catch (BusyConnectionException e) {
-            logger.warn(String.format("Tried to set the keyspace on busy connection to %s. This should not happen but is not critical (it will retried)", address));
+            throw defunct(new ConnectionException(address, "Tried to set the keyspace on busy connection"));
         } catch (ExecutionException e) {
             throw defunct(new ConnectionException(address, "Error while setting keyspace", e));
         }
