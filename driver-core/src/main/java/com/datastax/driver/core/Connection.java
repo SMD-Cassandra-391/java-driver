@@ -19,6 +19,7 @@ import javax.net.ssl.SSLEngine;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -867,6 +868,8 @@ class Connection {
         private final Timeout timeout;
         private final long startTime;
 
+        private final AtomicBoolean isCancelled = new AtomicBoolean();
+
         public ResponseHandler(Connection connection, ResponseCallback callback) throws BusyConnectionException {
             this.connection = connection;
             this.streamId = connection.dispatcher.streamIdHandler.next();
@@ -885,6 +888,9 @@ class Connection {
         }
 
         public void cancelHandler() {
+            if (!isCancelled.compareAndSet(false, true))
+                return;
+
             // We haven't really received a response: we want to remove the handle because we gave up on that
             // request and there is no point in holding the handler, but we don't release the streamId. If we
             // were, a new request could reuse that ID but get the answer to the request we just gave up on instead

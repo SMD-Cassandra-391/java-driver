@@ -163,6 +163,8 @@ class RequestHandler implements Connection.ResponseCallback {
         while (true) {
             QueryState previous = queryStateRef.get();
             if (previous == QueryState.CANCELLED) {
+                if (connection instanceof PooledConnection)
+                    ((PooledConnection)connection).release();
                 return;
             }
             if (previous.inProgress || queryStateRef.compareAndSet(previous, previous.startNext()))

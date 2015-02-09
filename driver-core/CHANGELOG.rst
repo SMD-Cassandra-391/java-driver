@@ -4,6 +4,9 @@ CHANGELOG
 2.0.9.2:
 --------
 
+- [bug] Release connection when retry detects cancellation before write
+  (JAVA-653)
+
 
 2.0.9.1:
 --------
